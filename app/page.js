@@ -12,7 +12,7 @@ export default function MyStudyPlanProMax() {
   const [mounted, setMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const [userTitle, setUserTitle] = useState("Bạn");
+  const [userTitle, setUserTitle] = useState("");
 
   const [activeTab, setActiveTab] = useState("home");
   const [foodCoins, setFoodCoins] = useState(50);
@@ -127,10 +127,12 @@ export default function MyStudyPlanProMax() {
   };
 
   const handleLogin = async () => {
-    if (username.length < 2) return alert(`Tên đăng nhập hơi ngắn ${userTitle} ơi 🌸`);
+    const finalTitle = userTitle.trim() === "" ? "Bạn" : userTitle;
+    if (username.length < 2) return alert(`Tên đăng nhập hơi ngắn ${finalTitle} ơi 🌸`);
     playSound("click");
+    setUserTitle(finalTitle);
     localStorage.setItem("msp_user", username);
-    localStorage.setItem("msp_title", userTitle);
+    localStorage.setItem("msp_title", finalTitle);
     setIsLoggedIn(true);
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     
@@ -222,14 +224,7 @@ export default function MyStudyPlanProMax() {
           <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 mb-2 drop-shadow-sm">MyStudyPlan</h1>
           <p className="text-sm font-bold text-pink-400 mb-8">Kỷ luật tự giác - Nuôi thú cực mượt</p>
           <div className="flex gap-2 mb-4">
-            <select value={userTitle} onChange={(e) => setUserTitle(e.target.value)} className="w-1/3 p-4 rounded-2xl glass-input text-pink-600 font-bold text-lg outline-none cursor-pointer">
-              <option value="Bạn">Bạn</option>
-              <option value="Bố">Bố</option>
-              <option value="Mẹ">Mẹ</option>
-              <option value="Anh">Anh</option>
-              <option value="Chị">Chị</option>
-              <option value="Chủ nhân">Chủ nhân</option>
-            </select>
+            <input type="text" placeholder="Xưng hô (VD: Bố, Bạn...)" value={userTitle} onChange={(e) => setUserTitle(e.target.value)} className="w-1/3 p-4 rounded-2xl glass-input text-pink-600 placeholder-pink-400 font-bold text-lg outline-none" />
             <input type="text" placeholder="Tên là gì ạ?..." value={username} onChange={(e) => setUsername(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleLogin()} className="w-2/3 p-4 rounded-2xl glass-input text-pink-600 placeholder-pink-400 text-center font-bold text-lg outline-none" />
           </div>
           <button onClick={handleLogin} className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white text-lg font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(225,29,72)] active:translate-y-[6px] active:shadow-none transition-all hover:scale-[1.02] hover:shadow-lg">
