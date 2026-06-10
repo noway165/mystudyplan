@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from "canvas-confetti";
 import { Music, CloudRain, Coffee } from 'lucide-react';
 
-export default function StudyTab({ playSound, setFoodCoins, setStats, updateQuestProgress, userTitle }) {
+export default function StudyTab({ playSound, setFoodCoins, setStats, setChartData, updateQuestProgress, userTitle }) {
   const [workTime, setWorkTime] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -34,12 +34,22 @@ export default function StudyTab({ playSound, setFoodCoins, setStats, updateQues
       confetti({ particleCount: 200, spread: 90, colors: ["#f472b6", "#fb923c", "#fcd34d"] });
       setFoodCoins((prev) => prev + (workTime >= 50 ? 15 : workTime >= 25 ? 5 : 2));
       setStats(prev => ({ ...prev, minutes: prev.minutes + workTime }));
+      
+      const dayIndex = (new Date().getDay() + 6) % 7;
+      if (setChartData) {
+        setChartData(prev => {
+          const arr = [...prev];
+          arr[dayIndex] = { ...arr[dayIndex], min: arr[dayIndex].min + workTime };
+          return arr;
+        });
+      }
+
       alert(`✨ Ting ting! Hoàn thành ${workTime} phút! Mèo thưởng xương nha!`);
       setTimeLeft(workTime * 60);
       if (updateQuestProgress) updateQuestProgress('pomodoro', 1);
     }
     return () => clearInterval(timer);
-  }, [isRunning, timeLeft, workTime, playSound, setFoodCoins, setStats, updateQuestProgress]);
+  }, [isRunning, timeLeft, workTime, playSound, setFoodCoins, setStats, setChartData, updateQuestProgress]);
 
   const changeTime = (mins) => {
     setWorkTime(mins);

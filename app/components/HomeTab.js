@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import confetti from 'canvas-confetti';
 
-const chartData = [
-  { name: 'T2', min: 25 }, { name: 'T3', min: 50 }, { name: 'T4', min: 75 },
-  { name: 'T5', min: 25 }, { name: 'T6', min: 100 }, { name: 'T7', min: 0 }, { name: 'CN', min: 150 },
-];
-
 const ITEMS = [
   { id: "bg_forest", name: "Rừng Mộng Mơ", icon: "🌲", type: "bg", prob: 30, color: "from-green-400 to-emerald-600" },
   { id: "bg_galaxy", name: "Dải Ngân Hà", icon: "🌌", type: "bg", prob: 20, color: "from-indigo-600 to-purple-900" },
@@ -16,7 +11,7 @@ const ITEMS = [
 ];
 
 export default function HomeTab({ 
-  stats, isAiThinking, aiMessage, hasGlasses, hasCrown, isRunning, buyItem, foodCoins,
+  stats, chartData, isAiThinking, aiMessage, hasGlasses, hasCrown, isRunning, buyItem, foodCoins,
   quests, claimQuestReward, inventory, setInventory, equippedBg, setEquippedBg, setFoodCoins, playSound, userTitle
 }) {
   const CAT_IMAGE = "/pink_cat.png";

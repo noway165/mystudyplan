@@ -29,6 +29,10 @@ export default function App() {
   const [hasCrown, setHasCrown] = useState(false);
   const [hasGlasses, setHasGlasses] = useState(false);
   const [stats, setStats] = useState({ streak: 1, minutes: 0, tasks: 0 });
+  const [chartData, setChartData] = useState([
+    { name: 'T2', min: 0 }, { name: 'T3', min: 0 }, { name: 'T4', min: 0 },
+    { name: 'T5', min: 0 }, { name: 'T6', min: 0 }, { name: 'T7', min: 0 }, { name: 'CN', min: 0 }
+  ]);
   const [gradeHistory, setGradeHistory] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -59,6 +63,10 @@ export default function App() {
           setHasCrown(data.hasCrown || false);
           setHasGlasses(data.hasGlasses || false);
           setStats(data.stats || { streak: 1, minutes: 0, tasks: 0 });
+          setChartData(data.chartData || [
+            { name: 'T2', min: 0 }, { name: 'T3', min: 0 }, { name: 'T4', min: 0 },
+            { name: 'T5', min: 0 }, { name: 'T6', min: 0 }, { name: 'T7', min: 0 }, { name: 'CN', min: 0 }
+          ]);
           setGradeHistory(data.gradeHistory || []);
           setSchedules(data.schedules || []);
           setInventory(data.inventory || []);
@@ -92,10 +100,10 @@ export default function App() {
     if (isLoggedIn && auth.currentUser) {
       const userRef = doc(db, "users", auth.currentUser.uid);
       setDoc(userRef, {
-        userTitle, foodCoins, hasCrown, hasGlasses, stats, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin
+        userTitle, foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin
       }, { merge: true });
     }
-  }, [foodCoins, hasCrown, hasGlasses, stats, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin, userTitle, isLoggedIn]);
+  }, [foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin, userTitle, isLoggedIn]);
 
   const generateDailyQuests = () => {
     const dailyQuests = [
@@ -311,10 +319,10 @@ export default function App() {
 
          <main className="flex-1 p-0 lg:p-4">
            <div className="max-w-5xl mx-auto">
-             {activeTab === "home" && <HomeTab stats={stats} isAiThinking={isAiThinking} aiMessage={aiMessage} hasGlasses={hasGlasses} hasCrown={hasCrown} buyItem={buyItem} foodCoins={foodCoins} quests={quests} claimQuestReward={claimQuestReward} inventory={inventory} setInventory={setInventory} equippedBg={equippedBg} setEquippedBg={setEquippedBg} setFoodCoins={setFoodCoins} playSound={playSound} userTitle={userTitle} />}
+             {activeTab === "home" && <HomeTab stats={stats} chartData={chartData} isAiThinking={isAiThinking} aiMessage={aiMessage} hasGlasses={hasGlasses} hasCrown={hasCrown} buyItem={buyItem} foodCoins={foodCoins} quests={quests} claimQuestReward={claimQuestReward} inventory={inventory} setInventory={setInventory} equippedBg={equippedBg} setEquippedBg={setEquippedBg} setFoodCoins={setFoodCoins} playSound={playSound} userTitle={userTitle} />}
              {activeTab === "schedule" && <ScheduleTab schedules={schedules} setSchedules={setSchedules} playSound={playSound} triggerAlarm={triggerAlarm} userTitle={userTitle} />}
              {activeTab === "grades" && <GradesTab playSound={playSound} isAiThinking={isAiThinking} setIsAiThinking={setIsAiThinking} gradeHistory={gradeHistory} setGradeHistory={setGradeHistory} callGemini={callGemini} setAiMessage={setAiMessage} setActiveTab={setActiveTab} setFoodCoins={setFoodCoins} userTitle={userTitle} />}
-             {activeTab === "study" && <StudyTab playSound={playSound} setFoodCoins={setFoodCoins} setStats={setStats} updateQuestProgress={updateQuestProgress} userTitle={userTitle} />}
+             {activeTab === "study" && <StudyTab playSound={playSound} setFoodCoins={setFoodCoins} setStats={setStats} setChartData={setChartData} updateQuestProgress={updateQuestProgress} userTitle={userTitle} />}
              {activeTab === "flashcard" && <FlashcardTab playSound={playSound} foodCoins={foodCoins} setFoodCoins={setFoodCoins} callGemini={callGemini} updateQuestProgress={updateQuestProgress} userTitle={userTitle} />}
            </div>
          </main>
