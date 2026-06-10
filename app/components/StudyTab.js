@@ -33,7 +33,12 @@ export default function StudyTab({ playSound, setFoodCoins, setStats, setChartDa
       playSound("success");
       confetti({ particleCount: 200, spread: 90, colors: ["#f472b6", "#fb923c", "#fcd34d"] });
       setFoodCoins((prev) => prev + (workTime >= 50 ? 15 : workTime >= 25 ? 5 : 2));
-      setStats(prev => ({ ...prev, minutes: prev.minutes + workTime }));
+      setStats(prev => ({ 
+        ...prev, 
+        minutes: prev.minutes + workTime,
+        hunger: Math.min(100, (prev.hunger ?? 50) + (workTime >= 50 ? 20 : 10)),
+        happiness: Math.min(100, (prev.happiness ?? 50) + (workTime >= 50 ? 30 : 15))
+      }));
       
       const dayIndex = (new Date().getDay() + 6) % 7;
       if (setChartData) {
@@ -121,8 +126,8 @@ export default function StudyTab({ playSound, setFoodCoins, setStats, setChartDa
         </div>
         <ul className="space-y-3">
           {tasks.map((t, idx) => (
-            <li key={t.id} className="flex items-center p-4 rounded-2xl border border-white/50 glass cursor-pointer transition-all hover:scale-[1.02] animate-in slide-in-from-right-5 fade-in" style={{ animationDelay: `${idx * 100}ms` }} onClick={() => { setTasks(tasks.map(task => task.id === t.id ? { ...task, done: !task.done } : task)); if (!t.done) { playSound("success"); setFoodCoins(f => f + 1); setStats(s => ({...s, tasks: s.tasks + 1})); confetti({particleCount: 50, spread: 40}); if (updateQuestProgress) updateQuestProgress('todo', 1); } }}>
-              <div className={`w-8 h-8 rounded-xl border-[3px] flex items-center justify-center mr-4 transition-all ${t.done ? 'bg-pink-400 border-pink-400 scale-110 shadow-lg' : 'border-white bg-white/50'}`}>{t.done && <span className="text-white font-black text-sm">✓</span>}</div>
+            <li key={t.id} className="flex items-center p-4 rounded-2xl border border-white/50 glass cursor-pointer transition-all hover:scale-[1.02] animate-in slide-in-from-right-5 fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
+              <div className={`w-8 h-8 rounded-xl border-[3px] flex items-center justify-center mr-4 transition-all ${t.done ? 'bg-pink-400 border-pink-400 scale-110 shadow-lg' : 'border-white bg-white/50'}`} onClick={() => { setTasks(tasks.map(task => task.id === t.id ? { ...task, done: !task.done } : task)); if (!t.done) { playSound("success"); setFoodCoins(f => f + 1); setStats(s => ({...s, tasks: s.tasks + 1, hunger: Math.min(100, (s.hunger ?? 50) + 5), happiness: Math.min(100, (s.happiness ?? 50) + 5)})); confetti({particleCount: 50, spread: 40}); if (updateQuestProgress) updateQuestProgress('todo', 1); } }}>{t.done && <span className="text-white font-black text-sm">✓</span>}</div>
               <span className={`font-bold flex-1 transition-all ${t.done ? 'line-through text-pink-300/80' : 'text-pink-600'}`}>{t.text}</span>
               <button onClick={(e) => {e.stopPropagation(); setTasks(tasks.filter(task => task.id !== t.id)); playSound("click");}} className="text-pink-300 hover:text-red-400 font-black ml-2 px-2 text-xl hover:scale-110 transition-transform">×</button>
             </li>

@@ -116,13 +116,13 @@ export default function HomeTab({
                 <span className="w-10 text-right">{stats.minutes % 100}/100 XP</span>
               </div>
               <div className="flex gap-4">
-                 <div className="flex-1 flex items-center bg-white/50 p-1.5 rounded-xl border border-white text-xs">
+                 <div className="flex-1 flex items-center bg-white/50 p-1.5 rounded-xl border border-white text-xs shadow-sm" title="Độ no">
                     <span className="mr-2">🍔</span>
-                    <div className="flex-1 h-2 bg-pink-100 rounded-full overflow-hidden"><div className="h-full bg-orange-400 w-[70%]"></div></div>
+                    <div className="flex-1 h-2 bg-pink-100 rounded-full overflow-hidden"><div className="h-full bg-orange-400 transition-all duration-1000" style={{ width: `${stats.hunger ?? 50}%` }}></div></div>
                  </div>
-                 <div className="flex-1 flex items-center bg-white/50 p-1.5 rounded-xl border border-white text-xs">
+                 <div className="flex-1 flex items-center bg-white/50 p-1.5 rounded-xl border border-white text-xs shadow-sm" title="Độ vui vẻ">
                     <span className="mr-2">💖</span>
-                    <div className="flex-1 h-2 bg-pink-100 rounded-full overflow-hidden"><div className="h-full bg-pink-400 w-[90%]"></div></div>
+                    <div className="flex-1 h-2 bg-pink-100 rounded-full overflow-hidden"><div className="h-full bg-pink-400 transition-all duration-1000" style={{ width: `${stats.happiness ?? 50}%` }}></div></div>
                  </div>
               </div>
             </div>
