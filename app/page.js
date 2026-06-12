@@ -44,6 +44,9 @@ export default function App() {
   const [aiMessage, setAiMessage] = useState("");
   const [isAiThinking, setIsAiThinking] = useState(false);
 
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
   useEffect(() => { setMounted(true); }, []);
 
   // Lắng nghe trạng thái đăng nhập từ Firebase
@@ -63,6 +66,7 @@ export default function App() {
           setHasCrown(data.hasCrown || false);
           setHasGlasses(data.hasGlasses || false);
           setStats(data.stats || { streak: 1, minutes: 0, tasks: 0 });
+          setIsPremium(data.isPremium || false);
           setChartData(data.chartData || [
             { name: 'T2', min: 0 }, { name: 'T3', min: 0 }, { name: 'T4', min: 0 },
             { name: 'T5', min: 0 }, { name: 'T6', min: 0 }, { name: 'T7', min: 0 }, { name: 'CN', min: 0 }
@@ -100,10 +104,10 @@ export default function App() {
     if (isLoggedIn && auth.currentUser) {
       const userRef = doc(db, "users", auth.currentUser.uid);
       setDoc(userRef, {
-        userTitle, foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin
+        userTitle, foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin, isPremium
       }, { merge: true });
     }
-  }, [foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin, userTitle, isLoggedIn]);
+  }, [foodCoins, hasCrown, hasGlasses, stats, chartData, gradeHistory, schedules, inventory, equippedBg, quests, lastLogin, userTitle, isLoggedIn, isPremium]);
 
   const generateDailyQuests = () => {
     const dailyQuests = [
@@ -198,7 +202,7 @@ export default function App() {
     }
   };
 
-  const callGemini = async (prompt, isJsonMode = false) => {
+  const callGemini = async (prompt, isJsonMode = false, fileData = null) => {
     try {
       const API_KEY = process.env.NEXT_PUBLIC_GEMINI_KEY;
       if (!API_KEY) return "Bố quên cài mã API Key vào file .env.local rồi 😿";
@@ -207,9 +211,14 @@ export default function App() {
         ? "Chỉ trả về định dạng JSON hợp lệ. Không kèm theo text."
         : `Bạn là Mèo Hồng. Gọi người dùng là '${userTitle}'. Trả lời dưới 40 từ, siêu nũng nịu, nhiều emoji 🌸💖🐾.`;
 
+      const userParts = [{ text: prompt }];
+      if (fileData) {
+        userParts.push({ inlineData: { mimeType: fileData.mimeType, data: fileData.data } });
+      }
+
       const bodyPayload = {
         systemInstruction: { parts: [{ text: systemText }] },
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts: userParts }],
       };
       if (isJsonMode) bodyPayload.generationConfig = { responseMimeType: "application/json" };
 
@@ -308,24 +317,81 @@ export default function App() {
        <div className="flex-1 flex flex-col min-h-screen relative">
          <header className="flex justify-between items-center p-6 lg:p-8 glass lg:bg-transparent lg:backdrop-blur-none rounded-b-[2.5rem] lg:rounded-none sticky top-0 z-40 text-pink-600 border-b-2 lg:border-none border-white/60">
            <div>
-             <h1 className="text-2xl lg:text-4xl font-black truncate max-w-[200px] lg:max-w-none drop-shadow-sm">Chào, {username}! 🌸</h1>
+             <h1 className="text-2xl lg:text-4xl font-black truncate max-w-[200px] lg:max-w-none drop-shadow-sm flex items-center">
+               Chào, {username}! {isPremium ? <span className="ml-2 text-xl text-yellow-500" title="Người dùng Premium">💎</span> : <span className="ml-2">🌸</span>}
+             </h1>
              <p className="text-sm font-bold text-gray-500 hidden lg:block mt-1">Hôm nay {userTitle} muốn học môn gì nào?</p>
              <button onClick={handleLogout} className="lg:hidden text-[10px] font-bold bg-pink-100/50 px-2 py-1 rounded-md mt-1 hover:bg-pink-200 transition">Đăng xuất 🚪</button>
            </div>
-           <div className="flex items-center glass-card px-5 py-3 rounded-full shadow-[0_4px_0_rgba(244,114,182,0.3)] hover:scale-105 transition-transform cursor-pointer border-white/80">
-             <span className="text-2xl animate-bounce">🍖</span><span className="ml-3 font-black text-pink-600 text-2xl">{foodCoins}</span>
+           <div className="flex items-center gap-4">
+             {!isPremium && (
+               <button onClick={() => {playSound("click"); setShowPremiumModal(true);}} className="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full font-black text-sm shadow-[0_3px_0_rgba(180,83,9,0.8)] active:translate-y-[3px] active:shadow-none hover:scale-105 transition-all">
+                 <span className="mr-2 animate-pulse">💎</span> Nâng Cấp
+               </button>
+             )}
+             <div className="flex items-center glass-card px-5 py-3 rounded-full shadow-[0_4px_0_rgba(244,114,182,0.3)] hover:scale-105 transition-transform cursor-pointer border-white/80">
+               <span className="text-2xl animate-bounce">🍖</span><span className="ml-3 font-black text-pink-600 text-2xl">{foodCoins}</span>
+             </div>
            </div>
          </header>
 
          <main className="flex-1 p-0 lg:p-4">
            <div className="max-w-5xl mx-auto">
-             {activeTab === "home" && <HomeTab stats={stats} chartData={chartData} isAiThinking={isAiThinking} aiMessage={aiMessage} hasGlasses={hasGlasses} hasCrown={hasCrown} buyItem={buyItem} foodCoins={foodCoins} quests={quests} claimQuestReward={claimQuestReward} inventory={inventory} setInventory={setInventory} equippedBg={equippedBg} setEquippedBg={setEquippedBg} setFoodCoins={setFoodCoins} playSound={playSound} userTitle={userTitle} />}
-             {activeTab === "schedule" && <ScheduleTab schedules={schedules} setSchedules={setSchedules} playSound={playSound} triggerAlarm={triggerAlarm} userTitle={userTitle} />}
+             {activeTab === "home" && <HomeTab stats={stats} chartData={chartData} isAiThinking={isAiThinking} aiMessage={aiMessage} hasGlasses={hasGlasses} hasCrown={hasCrown} buyItem={buyItem} foodCoins={foodCoins} quests={quests} claimQuestReward={claimQuestReward} inventory={inventory} setInventory={setInventory} equippedBg={equippedBg} setEquippedBg={setEquippedBg} setFoodCoins={setFoodCoins} playSound={playSound} userTitle={userTitle} isPremium={isPremium} />}
+             {activeTab === "schedule" && <ScheduleTab schedules={schedules} setSchedules={setSchedules} playSound={playSound} triggerAlarm={triggerAlarm} userTitle={userTitle} isPremium={isPremium} />}
              {activeTab === "grades" && <GradesTab playSound={playSound} isAiThinking={isAiThinking} setIsAiThinking={setIsAiThinking} gradeHistory={gradeHistory} setGradeHistory={setGradeHistory} callGemini={callGemini} setAiMessage={setAiMessage} setActiveTab={setActiveTab} setFoodCoins={setFoodCoins} userTitle={userTitle} />}
              {activeTab === "study" && <StudyTab playSound={playSound} setFoodCoins={setFoodCoins} setStats={setStats} setChartData={setChartData} updateQuestProgress={updateQuestProgress} userTitle={userTitle} />}
-             {activeTab === "flashcard" && <FlashcardTab playSound={playSound} foodCoins={foodCoins} setFoodCoins={setFoodCoins} callGemini={callGemini} updateQuestProgress={updateQuestProgress} userTitle={userTitle} />}
+             {activeTab === "flashcard" && <FlashcardTab playSound={playSound} foodCoins={foodCoins} setFoodCoins={setFoodCoins} callGemini={callGemini} updateQuestProgress={updateQuestProgress} userTitle={userTitle} isPremium={isPremium} />}
            </div>
          </main>
+         
+         {showPremiumModal && (
+           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
+             <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl border-4 border-yellow-300">
+               <button onClick={() => setShowPremiumModal(false)} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full font-black text-xl hover:bg-red-100 hover:text-red-500 transition-colors">×</button>
+               
+               <div className="text-center mb-6">
+                 <div className="text-6xl mb-2 animate-bounce">💎</div>
+                 <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">Premium Scholar</h2>
+                 <p className="text-gray-500 font-bold mt-2">Mở khóa sức mạnh AI - Bứt phá điểm số!</p>
+               </div>
+               
+               <div className="space-y-4 mb-6">
+                 <div className="flex items-center gap-3 bg-yellow-50 p-4 rounded-2xl border border-yellow-200">
+                   <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white font-black text-xl">🚀</div>
+                   <div>
+                     <h3 className="font-black text-yellow-700">Mock-Test Generator</h3>
+                     <p className="text-xs font-bold text-yellow-600">Quét vô hạn PDF/Slide tạo đề thi thử siêu chuẩn.</p>
+                   </div>
+                 </div>
+                 <div className="flex items-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-200">
+                   <div className="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center text-white font-black text-xl">📅</div>
+                   <div>
+                     <h3 className="font-black text-pink-700">AI Smart Scheduler</h3>
+                     <p className="text-xs font-bold text-pink-600">Lên lịch ôn thi thần tốc bằng thuật toán chia nhỏ.</p>
+                   </div>
+                 </div>
+                 
+                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-2xl border border-green-200 flex items-start gap-3">
+                   <div className="text-2xl mt-1">🌍</div>
+                   <div>
+                     <h3 className="font-black text-green-700 text-sm">Quỹ SDG 4 - Quality Education</h3>
+                     <p className="text-[11px] font-bold text-green-600 leading-tight">Với mỗi gói Premium, bạn đang tài trợ 1 tài khoản miễn phí trọn đời cho sinh viên vùng sâu vùng xa theo mục tiêu phát triển bền vững của Liên Hợp Quốc.</p>
+                   </div>
+                 </div>
+               </div>
+               
+               <div className="flex flex-col gap-3">
+                 <button onClick={() => { playSound("success"); confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }}); setIsPremium(true); setShowPremiumModal(false); alert("Cảm ơn bạn đã đồng hành cùng MyStudyPlan và Quỹ SDG 4! Bạn đã trở thành hội viên Premium!"); }} className="w-full py-4 rounded-2xl font-black text-white text-lg bg-gradient-to-r from-yellow-400 to-orange-500 shadow-[0_6px_0_rgba(180,83,9,0.5)] active:translate-y-[6px] active:shadow-none hover:scale-[1.02] transition-all">
+                   Đăng ký ngay - 29,000đ/tháng
+                 </button>
+                 <button onClick={() => { playSound("success"); confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }}); setIsPremium(true); setShowPremiumModal(false); alert("Cảm ơn bạn đã đồng hành cùng MyStudyPlan và Quỹ SDG 4! Bạn đã trở thành hội viên Premium!"); }} className="w-full py-3 rounded-2xl font-black text-yellow-700 text-base bg-yellow-100 hover:bg-yellow-200 transition-colors">
+                   Tiết kiệm 40% (199,000đ/năm)
+                 </button>
+               </div>
+             </div>
+           </div>
+         )}
       </div>
     </div>
   );

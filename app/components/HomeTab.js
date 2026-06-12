@@ -230,6 +230,40 @@ export default function HomeTab({
             )}
           </div>
 
+          {/* Cửa hàng Voucher Affiliate */}
+          <div className="mx-5 lg:mx-0 glass-card p-6 rounded-[2.5rem] shadow-xl border-[3px] border-white/80 relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-300/20 rounded-bl-full blur-2xl"></div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-black text-cyan-600 text-lg drop-shadow-sm flex items-center">🎟️ Đổi Voucher</h3>
+              <span className="text-xs font-black bg-cyan-100 text-cyan-600 px-2 py-1 rounded-full">Tài trợ</span>
+            </div>
+            <p className="text-xs font-bold text-gray-500 mb-4">Dùng Xương để đổi quà tặng thực tế từ các đối tác của MyStudyPlan nha!</p>
+            
+            <div className="space-y-3">
+               <div className="flex items-center justify-between bg-white/60 p-3 rounded-2xl border border-white/80 shadow-sm">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-xl">📚</div>
+                   <div>
+                     <h4 className="font-black text-gray-700 text-sm">Giảm 20% Fahasa</h4>
+                     <p className="text-[10px] font-bold text-gray-500">Mã giảm giá mua sách</p>
+                   </div>
+                 </div>
+                 <button onClick={() => { if(foodCoins < 500) alert("Chưa đủ 500 xương rồi!"); else { setFoodCoins(prev => prev - 500); alert("Đổi thành công! Mã của bạn là: FAHASA-STUDY20"); playSound("success"); confetti({ particleCount: 100 }); } }} className="px-3 py-2 bg-gradient-to-r from-red-400 to-rose-500 text-white font-black text-xs rounded-xl shadow-[0_3px_0_rgba(225,29,72,0.5)] active:translate-y-[3px] active:shadow-none transition-all">500 🍖</button>
+               </div>
+
+               <div className="flex items-center justify-between bg-white/60 p-3 rounded-2xl border border-white/80 shadow-sm">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl">🗣️</div>
+                   <div>
+                     <h4 className="font-black text-gray-700 text-sm">Voucher ELSA 500K</h4>
+                     <p className="text-[10px] font-bold text-gray-500">Giảm học phí gói Pro</p>
+                   </div>
+                 </div>
+                 <button onClick={() => { if(foodCoins < 1000) alert("Chưa đủ 1000 xương rồi!"); else { setFoodCoins(prev => prev - 1000); alert("Đổi thành công! Mã của bạn là: ELSA-PRO-500K"); playSound("success"); confetti({ particleCount: 100 }); } }} className="px-3 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white font-black text-xs rounded-xl shadow-[0_3px_0_rgba(79,70,229,0.5)] active:translate-y-[3px] active:shadow-none transition-all">1000 🍖</button>
+               </div>
+            </div>
+          </div>
+
         </div> {/* Hết Cột Phải */}
       </div>
   );
