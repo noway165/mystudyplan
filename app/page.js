@@ -346,9 +346,9 @@ export default function App() {
          </main>
          
          {showPremiumModal && (
-           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-             <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl border-4 border-yellow-300">
-               <button onClick={() => setShowPremiumModal(false)} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full font-black text-xl hover:bg-red-100 hover:text-red-500 transition-colors">×</button>
+           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in" onClick={() => setShowPremiumModal(false)}>
+             <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl border-4 border-yellow-300" onClick={(e) => e.stopPropagation()}>
+               <button onClick={() => setShowPremiumModal(false)} className="absolute top-4 right-4 z-[110] w-10 h-10 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full font-black text-xl hover:bg-red-100 hover:text-red-500 transition-colors cursor-pointer">×</button>
                
                <div className="text-center mb-6">
                  <div className="text-6xl mb-2 animate-bounce">💎</div>
